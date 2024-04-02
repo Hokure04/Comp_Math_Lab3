@@ -1,7 +1,6 @@
 import math
 from sympy import integrate, Symbol
 from tabulate import tabulate
-import numpy as np
 
 
 def choose_function():
@@ -19,13 +18,6 @@ def func(number, x):
         return 4 * x ** 3 - 5 * x ** 2 + 6 * x - 7
     elif number == 3:
         return 1 / (x**2 - 3*x)
-    # elif number == 4:
-    #     return math.cos(x) / (x + 2)
-    # return math.sqrt(1 + 2 * x ** 2 - x ** 3)
-    # return 1/math.sqrt(3+x**5)
-    # return math.sqrt(x**2+3)
-    # return math.sqrt(x**3+4)
-    # return x**2 - 3*x
 
 
 def get_parameters():
