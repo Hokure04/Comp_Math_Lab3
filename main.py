@@ -1,14 +1,13 @@
 import math
-
 from sympy import integrate, Symbol
 from tabulate import tabulate
+import numpy as np
 
 
 def choose_function():
     print('1. x**2')
     print('2. 4*x**3 - 5*x**2 + 6*x - 7')
-    print('3. 1/log(x)')
-    print('4. cos(x)/(x+2)')
+    print('3. 1/ (x**2 - 3*x)')
     func_number = int(input('Введите номер функции: '))
     return func_number
 
@@ -19,9 +18,9 @@ def func(number, x):
     elif number == 2:
         return 4 * x ** 3 - 5 * x ** 2 + 6 * x - 7
     elif number == 3:
-        return 1 / math.log(x)
-    elif number == 4:
-        return math.cos(x) / (x + 2)
+        return 1 / (x**2 - 3*x)
+    # elif number == 4:
+    #     return math.cos(x) / (x + 2)
     # return math.sqrt(1 + 2 * x ** 2 - x ** 3)
     # return 1/math.sqrt(3+x**5)
     # return math.sqrt(x**2+3)
@@ -45,25 +44,34 @@ def get_parameters():
     return a, b, e
 
 
+def check_divergence(value):
+    if math.isinf(value) or math.isnan(value):
+        print("Данный интеграл расходится.")
+        return -1
+
+
 def get_method():
     while True:
         n = 4
         print('\t', '1: Метод прямоугольников')
         print('\t', '2. Метод трапеций')
         print('\t', '3. Метод Симпсона')
-        param = int(input('Введите номер метода, котрый хотите использовать: '))
-        if param == 1:
-            number = choose_function()
-            a, b, e = get_parameters()
-            rectangle_method(number, n, a, b, e)
-        elif param == 2:
-            number = choose_function()
-            a, b, e = get_parameters()
-            trapezoid_method(number, n, a, b, e)
-        elif param == 3:
-            number = choose_function()
-            a, b, e = get_parameters()
-            simpson_method(number, n, a, b, e)
+        try:
+            param = int(input('Введите номер метода, котрый хотите использовать: '))
+            if param == 1:
+                number = choose_function()
+                a, b, e = get_parameters()
+                rectangle_method(number, n, a, b, e)
+            elif param == 2:
+                number = choose_function()
+                a, b, e = get_parameters()
+                trapezoid_method(number, n, a, b, e)
+            elif param == 3:
+                number = choose_function()
+                a, b, e = get_parameters()
+                simpson_method(number, n, a, b, e)
+        except TypeError:
+            print('К сожалению данный интеграл расходится')
 
 
 def rectangle_method(number, n, a, b, e):
@@ -94,6 +102,8 @@ def rectangle_method(number, n, a, b, e):
             y_right_array.append(func(number, x))
         table.append(y_right_array)
         I_right = h * sum(y_right_array)
+        if check_divergence(I_right) == -1:
+            break
         print('Значение интеграла для правых прямоугольников: ' + str(I_right))
         y_left_array = []
         for x in x_array:
@@ -102,12 +112,16 @@ def rectangle_method(number, n, a, b, e):
             y_left_array.append(func(number, x))
         table.append(y_left_array)
         I_left = h * sum(y_left_array)
+        if check_divergence(I_left) == -1:
+            break
         print('Значение интеграла для левых прямоугольников: ' + str(I_left))
         y_middle_array = []
         for x in x_array:
             x -= h / 2
             y_middle_array.append(func(number, x))
         I_middle = h * sum(y_middle_array)
+        if check_divergence(I_middle) == -1:
+            break
         print('Значение интеграла для средних прямоугольников: ' + str(I_middle))
         table.append(y_middle_array)
         print(tabulate(table, headers=headers, tablefmt="pretty"))
@@ -145,6 +159,8 @@ def trapezoid_method(number, n, a, b, e):
         print(tabulate(table, headers=headers, tablefmt="pretty"))
         incomplete_array = y_array[1:-1]
         I_trap = h * ((y_array[0] + y_array[n]) / 2 + sum(incomplete_array))
+        if check_divergence(I_trap) == -1:
+            break
         print('Значение интеграла: ' + str(I_trap))
         iter += 1
 
@@ -189,6 +205,8 @@ def simpson_method(number, n, a, b, e):
                 odd_number_array.append(incomplete_array[i])
         print(tabulate(table, headers=headers, tablefmt="pretty"))
         I_simps = h / 3 * (y_array[0] + 4 * sum(even_numbers_array) + 2 * sum(odd_number_array) + y_array[n])
+        if check_divergence(I_simps) == -1:
+            break
         print('Значение интеграла: ' + str(I_simps))
         iter += 1
 
